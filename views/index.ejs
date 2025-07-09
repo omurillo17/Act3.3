@@ -1,0 +1,18 @@
+<h1>Items</h1>
+<form action="/add" method="POST">
+  <input name="name" placeholder="Nuevo item" required>
+  <button>Agregar</button>
+</form>
+<ul>
+  <% items.forEach(i => { %>
+    <li>
+      <form action="/edit/<%= i.id %>" method="POST" style="display:inline">
+        <input name="name" value="<%= i.name %>">
+        <button>💾</button>
+      </form>
+      <form action="/delete/<%= i.id %>" method="POST" style="display:inline">
+        <button>🗑️</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>
