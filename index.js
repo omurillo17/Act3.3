@@ -1,6 +1,6 @@
-import express from 'express';
-import pg from 'pg';
-import dotenv from 'dotenv';
+const express = require('express');
+const pg = require('pg');
+require('dotenv').config();
 dotenv.config();
 const { Pool } = pg;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
