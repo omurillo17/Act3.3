@@ -1,0 +1,17 @@
+body {
+  background-color: #f8f9fa;
+  font-family: "Segoe UI", sans-serif;
+}
+.header {
+  margin: 2rem 0;
+  text-align: center;
+}
+.card-item {
+  transition: box-shadow 0.2s ease;
+}
+.card-item:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+.form-inline input {
+  max-width: 200px;
+}
