@@ -16,3 +16,15 @@ body{
   transition:border-color .3s,transform .3s;
 }
 .card:hover{border-color:#ffd700;transform:translateY(-4px);}
+
+/* Tarjetas de plataformas de streaming */
+.stream-card{
+  background:rgba(27,29,35,.85);
+  border:1px solid transparent;
+  border-radius:.5rem;
+  transition:border-color .3s,transform .3s;
+}
+.stream-card:hover{
+  border-color:#ffd700;
+  transform:translateY(-4px);
+}
