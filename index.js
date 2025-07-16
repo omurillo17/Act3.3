@@ -1,112 +1,95 @@
 require('dotenv').config();
 const express = require('express');
-const pg = require('pg');
-const path = require('path');
-const multer = require('multer');
-const { Pool } = pg;
+const path    = require('path');
+const { Pool } = require('pg');
 
-// Configuración de la base de datos
+const app  = express();
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.LOCAL ? false : { rejectUnauthorized: false }
 });
 
-const app = express();
-
-// Configuración de Multer (almacenamiento en memoria)
-const upload = multer({ storage: multer.memoryStorage() });
-
-// Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Rutas
-// Listar personajes
-app.get('/', async (req, res) => {
+/* ========== HELPERS ========== */
+const listCharacters = async () => {
+  const { rows } = await pool.query('SELECT * FROM characters ORDER BY id DESC');
+  return rows;
+};
+
+/* ========== RUTAS ========== */
+/* Home / alias / list */
+app.get(['/', '/characters'], async (_req, res) => {
   try {
-    const { rows: characters } = await pool.query('SELECT * FROM characters ORDER BY id ASC');
+    const characters = await listCharacters();
     res.render('index', { characters });
   } catch (err) {
-    console.error('Error al listar personajes:', err);
-    res.status(500).send('Error al cargar la lista de personajes.');
+    console.error('GET / —', err);
+    res.status(500).send('Error interno al listar personajes');
   }
 });
 
-// Mostrar formulario para nuevo personaje
-app.get('/characters/new', (req, res) => {
-  res.render('detail', { character: null });
-});
+/* Formulario nuevo */
+app.get('/characters/new', (_req, res) => res.render('form', { character: null }));
 
-// Crear nuevo personaje
-app.post('/characters', upload.single('image'), async (req, res) => {
+/* Crear */
+app.post('/characters', async (req, res) => {
   try {
-    const { name, description } = req.body;
-    let imageUrl = null;
-
-    if (req.file) {
-      // Convertir imagen a base64 para desarrollo
-      imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-    }
-
+    const { name, description, image_url } = req.body;
     await pool.query(
-      'INSERT INTO characters (name, description, image_url) VALUES ($1, $2, $3)',
-      [name, description || '', imageUrl]
+      `INSERT INTO characters (name, description, image_url, created_at)
+       VALUES ($1, $2, $3, to_char(NOW(),'YYYY-MM-DD HH24:MI:SS'))`,
+      [name, description, image_url]
     );
     res.redirect('/');
   } catch (err) {
-    console.error('Error al crear personaje:', err);
-    res.status(500).send(`Error al crear personaje: ${err.message}`);
+    console.error('POST /characters —', err);
+    res.status(500).send('No se pudo crear el personaje');
   }
 });
 
-// Mostrar formulario de edición
+/* Formulario editar */
 app.get('/characters/:id', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM characters WHERE id = $1', [req.params.id]);
-    if (rows.length === 0) return res.status(404).send('Personaje no encontrado');
-    res.render('detail', { character: rows[0] });
+    const { rows } = await pool.query('SELECT * FROM characters WHERE id=$1', [req.params.id]);
+    res.render('form', { character: rows[0] });
   } catch (err) {
-    console.error('Error al obtener personaje:', err);
-    res.status(500).send('Error al cargar el personaje.');
+    console.error('GET /characters/:id —', err);
+    res.status(500).send('Error al cargar el personaje');
   }
 });
 
-// Actualizar personaje
-app.post('/characters/:id', upload.single('image'), async (req, res) => {
+/* Actualizar */
+app.post('/characters/:id', async (req, res) => {
   try {
-    const { name, description } = req.body;
-    let imageUrl = req.body.existingImage;
-
-    if (req.file) {
-      imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-    }
-
+    const { name, description, image_url } = req.body;
     await pool.query(
-      'UPDATE characters SET name = $1, description = $2, image_url = $3 WHERE id = $4',
-      [name, description || '', imageUrl, req.params.id]
+      `UPDATE characters
+         SET name=$1, description=$2, image_url=$3
+       WHERE id=$4`,
+      [name, description, image_url, req.params.id]
     );
     res.redirect('/');
   } catch (err) {
-    console.error('Error al actualizar personaje:', err);
-    res.status(500).send('Error al actualizar el personaje.');
+    console.error('POST /characters/:id —', err);
+    res.status(500).send('No se pudo actualizar');
   }
 });
 
-// Eliminar personaje
+/* Eliminar */
 app.post('/characters/:id/delete', async (req, res) => {
   try {
-    await pool.query('DELETE FROM characters WHERE id = $1', [req.params.id]);
+    await pool.query('DELETE FROM characters WHERE id=$1', [req.params.id]);
     res.redirect('/');
   } catch (err) {
-    console.error('Error al eliminar personaje:', err);
-    res.status(500).send('Error al eliminar el personaje.');
+    console.error('DELETE /characters/:id —', err);
+    res.status(500).send('No se pudo eliminar');
   }
 });
 
-// Iniciar servidor
+/* ─────────────── */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor funcionando en http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server on ${PORT}`));
