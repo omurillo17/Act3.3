@@ -5,10 +5,12 @@
     "dotenv": "^17.2.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "multer": "^1.4.5-lts.1",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "multer": "^1.4.5-lts.2",
+    "fs": "0.0.1-security"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "npm install"
   }
 }
