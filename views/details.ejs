@@ -1,117 +1,96 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title><%= character ? 'Editar Personaje' : 'Nuevo Personaje' %></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.4.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <style>
-    .looney-header {
-      background: linear-gradient(90deg, #FFD700, #FF4500, #4169E1);
-    }
-    .preview-image {
-      max-width: 200px;
-      max-height: 200px;
-      margin-bottom: 15px;
-    }
-  </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= character ? 'Editar: '+character.name : 'Nuevo Personaje' %></title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"/>
+  <link href="/css/style.css" rel="stylesheet"/>
 </head>
 <body>
-  <div class="container py-4">
-    <div class="card shadow-sm border-0">
-      <div class="card-header looney-header text-white">
-        <h1 class="h4 mb-0"><%= character ? 'Editar ' + character.name : 'Crear Nuevo Personaje' %></h1>
-      </div>
+  <div class="container my-5">
+    <div class="card bg-transparent border-light mx-auto" style="max-width: 600px;">
       <div class="card-body">
-        <form 
-          action="<%= character ? '/characters/' + character.id : '/characters' %>" 
+        <h2 class="header-title mb-4 text-center">
+          <%= character ? 'Editar '+character.name : 'Crear Personaje' %>
+        </h2>
+        <form
+          action="<%= character ? '/characters/'+character.id : '/characters' %>"
           method="POST"
           enctype="multipart/form-data">
-          
-          <% if (character && character.image_url) { %>
-            <input type="hidden" name="existingImage" value="<%= character.image_url %>">
-            <div class="mb-3 text-center">
-              <img src="<%= character.image_url %>" class="preview-image img-thumbnail" id="imagePreview">
-            </div>
-          <% } else { %>
-            <div class="mb-3 text-center">
-              <img src="https://via.placeholder.com/200x200?text=Imagen" class="preview-image img-thumbnail" id="imagePreview">
-            </div>
-          <% } %>
-          
-          <div class="mb-4">
-            <label for="image" class="form-label fw-medium">Imagen del Personaje</label>
-            <input 
-              type="file" 
-              class="form-control" 
-              id="image" 
-              name="image" 
-              accept="image/*"
-              onchange="previewImage(this)">
+
+          <!-- Preview -->
+          <div class="mb-3 text-center">
+            <img
+              id="preview"
+              src="<%= character?.image_url || '/images/placeholder.png' %>"
+              class="img-fluid rounded mb-2"
+              style="max-height:250px;"
+            />
           </div>
-          
-          <div class="mb-4">
-            <label for="name" class="form-label fw-medium">Nombre del Personaje</label>
+
+          <!-- File picker -->
+          <div class="mb-3">
+            <label for="image" class="form-label text-light">Imagen</label>
+            <input
+              class="form-control form-control-sm"
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onchange="preview(this)"/>
+          </div>
+
+          <!-- Nombre -->
+          <div class="mb-3">
+            <label for="name" class="form-label text-light">Nombre</label>
             <input
               type="text"
-              class="form-control form-control-lg"
               id="name"
               name="name"
-              required
-              value="<%= character ? character.name : '' %>">
+              class="form-control form-control-sm bg-dark text-light"
+              value="<%= character?.name || '' %>"
+              required/>
           </div>
-          
+
+          <!-- Descripción -->
           <div class="mb-4">
-            <label for="description" class="form-label fw-medium">Descripción</label>
+            <label for="description" class="form-label text-light">Descripción</label>
             <textarea
-              class="form-control"
               id="description"
               name="description"
-              rows="5"
-              required><%= character ? character.description : 'Descripción del personaje, características y frases famosas...' %></textarea>
+              rows="3"
+              class="form-control form-control-sm bg-dark text-light"
+              required><%= character?.description || '' %></textarea>
           </div>
-          
+
+          <!-- Botones -->
           <div class="d-flex justify-content-between">
-            <a href="/" class="btn btn-outline-warning">
-              <i class="bi bi-arrow-left me-2"></i>Volver
+            <a href="/" class="btn btn-outline-light btn-sm">
+              <i class="bi bi-arrow-left-circle"></i> Volver
             </a>
-            <div>
-              <% if (character) { %>
-                <button
-                  type="submit"
-                  formaction="/characters/<%= character.id %>/delete"
-                  formmethod="POST"
-                  class="btn btn-danger me-2">
-                  <i class="bi bi-trash me-2"></i>Eliminar
-                </button>
-              <% } %>
-              <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-lg me-2"></i>
-                <%= character ? 'Guardar Cambios' : 'Crear Personaje' %>
-              </button>
-            </div>
+            <button type="submit" class="btn btn-main btn-sm">
+              <i class="bi bi-save2"></i>
+              <%= character ? 'Guardar' : 'Crear' %>
+            </button>
           </div>
+
         </form>
       </div>
     </div>
   </div>
 
   <script>
-    function previewImage(input) {
-      const preview = document.getElementById('imagePreview');
-      const file = input.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        preview.src = e.target.result;
-      }
-      
-      if (file) {
-        reader.readAsDataURL(file);
+    function preview(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => document.getElementById('preview').src = e.target.result;
+        reader.readAsDataURL(input.files[0]);
       }
     }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
