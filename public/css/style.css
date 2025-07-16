@@ -1,17 +1,118 @@
-body {
-  background-color: #f8f9fa;
-  font-family: "Segoe UI", sans-serif;
+/* Paleta de colores */
+:root {
+  --primary-blue: #1a73e8;
+  --secondary-blue: #4285f4;
+  --dark-blue: #0d47a1;
+  --white: #ffffff;
+  --light-gray: #f5f5f5;
+  --red: #d32f2f;
+  --dark-red: #b71c1c;
 }
+
+/* Estilos generales */
+body {
+  background-color: var(--light-gray);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  color: #333;
+}
+
 .header {
   margin: 2rem 0;
   text-align: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+  color: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+.header h1 {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  opacity: 0.9;
+  margin-bottom: 0;
+}
+
+/* Tarjetas de items */
 .card-item {
-  transition: box-shadow 0.2s ease;
+  transition: all 0.3s ease;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
 }
+
 .card-item:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
-.form-inline input {
-  max-width: 200px;
+
+.card-body {
+  padding: 1.25rem;
+  background-color: var(--white);
+}
+
+/* Botones */
+.btn-primary {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.btn-primary:hover {
+  background-color: var(--dark-blue);
+  border-color: var(--dark-blue);
+}
+
+.btn-danger {
+  background-color: var(--red);
+  border-color: var(--red);
+}
+
+.btn-danger:hover {
+  background-color: var(--dark-red);
+  border-color: var(--dark-red);
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+/* Formularios */
+.form-control {
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus {
+  border-color: var(--secondary-blue);
+  box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.25);
+}
+
+.input-group {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Alertas */
+.alert-info {
+  background-color: #e3f2fd;
+  color: var(--dark-blue);
+  border-color: #bbdefb;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+  }
+  
+  .form-inline input {
+    max-width: 100%;
+  }
 }
