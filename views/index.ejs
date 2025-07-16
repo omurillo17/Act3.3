@@ -23,7 +23,7 @@
     <!-- Formulario para agregar -->
     <div class="row justify-content-center mb-4">
       <div class="col-md-6">
-        <form action="/add" method="POST" class="input-group shadow-sm p-3 bg-white rounded">
+        <form action="/items" method="POST" class="input-group shadow-sm p-3 bg-white rounded">
           <input
             type="text"
             name="name"
@@ -54,7 +54,7 @@
               <div class="d-flex">
 
                 <!-- Formulario inline edición -->
-                <form action="/edit/<%= i.id %>" method="POST" class="d-flex me-2">
+                <form action="/items/<%= i.id %>" method="POST" class="d-flex me-2">
                   <input
                     name="name"
                     value="<%= i.name %>"
@@ -67,7 +67,7 @@
                 </form>
 
                 <!-- Eliminar -->
-                <form action="/delete/<%= i.id %>" method="POST">
+                <form action="/items/<%= i.id %>/delete" method="POST">
                   <button class="btn btn-sm btn-danger" type="submit">
                     <i class="bi bi-trash"></i>
                   </button>
