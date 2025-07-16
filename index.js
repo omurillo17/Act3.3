@@ -34,12 +34,17 @@ app.get('/items/new', (req, res) => {
 
 // Crear item
 app.post('/items', async (req, res) => {
-  const { name, description } = req.body;
-  await pool.query(
-    'INSERT INTO items (name, description) VALUES ($1, $2)',
-    [name, description]
-  );
-  res.redirect('/');
+  try {
+    const { name, description } = req.body;
+    await pool.query(
+      'INSERT INTO items (name, description) VALUES ($1, $2)',
+      [name, description]
+    );
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error en POST /items:', err);
+    res.status(500).send('No se pudo crear el ítem.');
+  }
 });
 
 // Ver detalle y editar item
@@ -64,6 +69,17 @@ app.post('/items/:id', async (req, res) => {
 app.post('/items/:id/delete', async (req, res) => {
   await pool.query('DELETE FROM items WHERE id = $1', [req.params.id]);
   res.redirect('/');
+});
+
+// Alias para ver la lista en /items
+app.get('/items', async (req, res) => {
+  try {
+    const { rows: items } = await pool.query('SELECT * FROM items ORDER BY id ASC');
+    res.render('index', { items });
+  } catch (err) {
+    console.error('Error en GET /items:', err);
+    res.status(500).send('Hubo un error interno al listar los ítems.');
+  }
 });
 
 // Levantar servidor
