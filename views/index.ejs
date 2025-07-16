@@ -1,18 +1,37 @@
-<h1>Items</h1>
-<form action="/add" method="POST">
-  <input name="name" placeholder="Nuevo item" required>
-  <button>Agregar</button>
-</form>
-<ul>
-  <% items.forEach(i => { %>
-    <li>
-      <form action="/edit/<%= i.id %>" method="POST" style="display:inline">
-        <input name="name" value="<%= i.name %>">
-        <button>💾</button>
-      </form>
-      <form action="/delete/<%= i.id %>" method="POST" style="display:inline">
-        <button>🗑️</button>
-      </form>
-    </li>
-  <% }) %>
-</ul>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lista de Items</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.4.0/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+</head>
+<body>
+  <div class="container my-4">
+    <h1 class="mb-4">Items</h1>
+    <a href="/items/new" class="btn btn-primary mb-3">+ Nuevo Item</a>
+    <div class="list-group">
+      <% items.forEach(item => { %>
+        <a href="/items/<%= item.id %>" class="list-group-item list-group-item-action">
+          <h5 class="mb-1"><%= item.name %></h5>
+          <p class="mb-1"><%= item.description %></p>
+        </a>
+      <% }) %>
+      <% if (items.length === 0) { %>
+        <p class="text-muted">No hay items aún.</p>
+      <% } %>
+    </div>
+    <!-- Enlace a medio digital externo -->
+    <footer class="mt-5 text-center">
+      <p>Imagen de ejemplo en Cloudinary:</p>
+      <a
+        href="https://res.cloudinary.com/tu_cuenta/image/upload/v123456/sample.jpg"
+        target="_blank">
+        Ver imagen de prueba
+      </a>
+    </footer>
+  </div>
+</body>
+</html>

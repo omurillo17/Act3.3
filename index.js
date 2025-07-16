@@ -1,52 +1,73 @@
-const express = require('express');
-const pg      = require('pg');
 require('dotenv').config();
+const express = require('express');
+const pg = require('pg');
+const path = require('path');
 
 const { Pool } = pg;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // Railway exige SSL; desactívalo solo en local con la variable LOCAL=1
-  ssl: process.env.LOCAL ? false : { rejectUnauthorized: false }
+  ssl: process.env.LOCAL
+    ? false
+    : { rejectUnauthorized: false }
 });
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');         // si usas otra, cámbialo
 
+// Vistas y archivos estáticos
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// LISTAR TODOS
-app.get('/', async (_req, res) => {
-  const { rows } = await pool.query('SELECT * FROM items ORDER BY id');
-  res.render('index', { items: rows });        // vista index.ejs
+// --- RUTAS CRUD ---
+
+// Listar todos los items
+app.get('/', async (req, res) => {
+  const { rows: items } = await pool.query('SELECT * FROM items ORDER BY id ASC');
+  res.render('index', { items });
 });
 
-// DETALLE
+// Formulario para crear nuevo item
+app.get('/items/new', (req, res) => {
+  res.render('detail', { item: null });
+});
+
+// Crear item
+app.post('/items', async (req, res) => {
+  const { name, description } = req.body;
+  await pool.query(
+    'INSERT INTO items (name, description) VALUES ($1, $2)',
+    [name, description]
+  );
+  res.redirect('/');
+});
+
+// Ver detalle y editar item
 app.get('/items/:id', async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM items WHERE id = $1', [req.params.id]);
-  if (!rows.length) return res.status(404).send('Item no encontrado');
-  res.render('detail', { item: rows[0] });     // vista detail.ejs
+  const { rows } = await pool.query('SELECT * FROM items WHERE id = $1', [
+    req.params.id
+  ]);
+  res.render('detail', { item: rows[0] });
 });
 
-// CREAR
-app.post('/add', async (req, res) => {
-  await pool.query('INSERT INTO items(name) VALUES ($1)', [req.body.name]);
+// Guardar cambios en item
+app.post('/items/:id', async (req, res) => {
+  const { name, description } = req.body;
+  await pool.query(
+    'UPDATE items SET name = $1, description = $2 WHERE id = $3',
+    [name, description, req.params.id]
+  );
   res.redirect('/');
 });
 
-// ACTUALIZAR
-app.post('/edit/:id', async (req, res) => {
-  await pool.query('UPDATE items SET name = $1 WHERE id = $2',
-                   [req.body.name, req.params.id]);
-  res.redirect('/');
-});
-
-// ELIMINAR
-app.post('/delete/:id', async (req, res) => {
+// Eliminar item
+app.post('/items/:id/delete', async (req, res) => {
   await pool.query('DELETE FROM items WHERE id = $1', [req.params.id]);
   res.redirect('/');
 });
 
-const PORT = process.env.PORT || 3000; 
-app.listen(PORT, '0.0.0.0', () =>
+// Levantar servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () =>
   console.log(`🚀 Servidor escuchando en puerto ${PORT}`)
 );
