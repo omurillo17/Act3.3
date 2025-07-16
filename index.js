@@ -14,11 +14,13 @@ const pool = new Pool({
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 
-// Configuración de vistas y archivos estáticos\app.set('view engine', 'ejs');
+// Configuración de vistas y archivos estáticos
+app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Función para listar ítems\async function listItems(req, res) {
+// Función para listar ítems
+async function listItems(req, res) {
   try {
     const { rows: items } = await pool.query(
       'SELECT * FROM items ORDER BY id ASC'
@@ -28,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
     console.error('Error al listar ítems:', err);
     res.status(500).send('Error al cargar la lista de ítems.');
   }
+}
 
 // Rutas de listado
 app.get('/', listItems);
